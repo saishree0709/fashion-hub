@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>FASHION HUB</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #111;
+        }
+
+        /* NAVBAR */
+        header {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            padding: 24px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        nav a {
+            margin-right: 24px;
+            text-decoration: none;
+            color: #111;
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .brand {
+            font-weight: 600;
+            letter-spacing: 4px;
+        }
+
+        /* HERO */
+        .hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .hero video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        /* Soft overlay (fashion-style) */
+        .hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 240, 245, 0.15);
+            /* soft pink undertone */
+            z-index: 0;
+        }
+
+
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 8vw, 8rem);
+            letter-spacing: 6px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .hero h3 {
+            font-weight: 400;
+            margin-bottom: 40px;
+            letter-spacing: 1px;
+        }
+
+        .hero button {
+            background: white;
+            border: none;
+            padding: 16px 42px;
+            font-size: 14px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hero button:hover {
+            background: #111;
+            color: white;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            header {
+                padding: 20px 30px;
+            }
+
+            nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <nav>
+            <a href="/styling">Style AI</a>
+            <a href="/stylemap">StyleMap Pro</a>
+            <a href="/gatherings">Social Gathering Stylist</a>
+        </nav>
+
+        <div class="brand"> </div>
+
+        <div>
+            <a href="#" style="margin-right: 16px;">About Us</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <!-- VIDEO -->
+        <video autoplay muted loop playsinline>
+            <source src="/static/video2.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+
+        <div class="hero-content">
+            <h1>FASHION HUB</h1>
+            <h3>Your AI Fashion Ecosystem</h3>
+            <a href="/styling" style="text-decoration: none;">
+                <button>Get Started</button>
+            </a>
+        </div>
+    </section>
+
+</body>
+
+</html>

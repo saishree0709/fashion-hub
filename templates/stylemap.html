@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StyleMap Pro: Intelligent Fashion Intelligence</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 1rem;
+        }
+
+        .loader {
+            border-top-color: #6366f1;
+            animation: spinner 1.5s linear infinite;
+        }
+
+        @keyframes spinner {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .skin-swatch {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-block;
+            vertical-align: middle;
+            border: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 font-sans text-slate-900">
+
+    <nav class="bg-white border-b border-slate-200 p-4 sticky top-0 z-[1000]">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="/" class="no-underline">
+                <h1 class="text-2xl font-black text-indigo-600 tracking-tight italic hover:text-indigo-700 transition">
+                    <i class="fas fa-bolt-lightning mr-2"></i>STYLEMAP PRO
+                </h1>
+            </a>
+            <div class="flex items-center gap-4">
+                <a href="/" class="text-sm font-semibold text-slate-500 hover:text-indigo-600">Back to Hub</a>
+                <div id="status-badge"
+                    class="hidden md:block text-xs font-semibold bg-indigo-50 px-3 py-1 rounded-full text-indigo-600">
+                    AI Styling Engine Active
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+        <!-- Left Column: User Input & Profile -->
+        <div class="lg:col-span-4 space-y-6">
+            <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h2 class="text-lg font-bold mb-4 flex items-center"><i
+                        class="fas fa-user-circle mr-2 text-indigo-500"></i>1. Personal Profile</h2>
+
+                <!-- Gender Selection -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Gender Preference</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="setGender('men')" id="btn-men"
+                            class="gender-btn py-2 px-3 border rounded-lg text-sm font-medium transition bg-indigo-600 text-white border-indigo-600">Men</button>
+                        <button onclick="setGender('women')" id="btn-women"
+                            class="gender-btn py-2 px-3 border rounded-lg text-sm font-medium transition hover:bg-slate-50 border-slate-200 text-slate-600">Women</button>
+                        <button onclick="setGender('unisex')" id="btn-unisex"
+                            class="gender-btn py-2 px-3 border rounded-lg text-sm font-medium transition hover:bg-slate-50 border-slate-200 text-slate-600">Unisex</button>
+                    </div>
+                </div>
+
+                <!-- Skin Tone Analysis Upload -->
+                <div class="mb-2">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Skin Tone Analysis (Selfie)</label>
+                    <div id="drop-zone"
+                        class="relative border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:border-indigo-400 transition cursor-pointer">
+                        <input type="file" id="imageInput" accept="image/*"
+                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                        <div id="upload-prompt">
+                            <i class="fas fa-camera text-slate-400 text-xl mb-2"></i>
+                            <p class="text-xs text-slate-500">Upload photo for color matching</p>
+                        </div>
+                        <img id="imagePreview" class="hidden w-full h-32 object-cover rounded-lg" alt="Preview">
+                    </div>
+                </div>
+                <div id="analysis-result"
+                    class="hidden mt-3 p-3 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-3">
+                    <div id="swatch" class="skin-swatch"></div>
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-slate-400 leading-none">Detected Tone</p>
+                        <p id="tone-name" class="text-sm font-bold text-slate-700">Analyzing...</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h2 class="text-lg font-bold mb-4 flex items-center"><i
+                        class="fas fa-location-dot mr-2 text-indigo-500"></i>2. Location</h2>
+                <div id="map"></div>
+                <p class="text-[10px] text-slate-400 mt-2 italic text-center">Click the map to select your current
+                    location</p>
+            </section>
+        </div>
+
+        <!-- Right Column: Results -->
+        <div class="lg:col-span-8">
+            <div id="placeholder-view"
+                class="h-full flex flex-col items-center justify-center bg-white rounded-3xl border-2 border-dashed border-slate-200 p-12 text-center">
+                <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mb-6">
+                    <i class="fas fa-wand-magic-sparkles text-indigo-400 text-3xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-700">Your AI Stylist is Ready</h3>
+                <p class="text-slate-500 max-w-sm mt-2">Complete your profile and select a location on the map to
+                    generate personalized fashion recommendations.</p>
+            </div>
+
+            <div id="result-view" class="hidden space-y-6">
+                <!-- Recommendations Header -->
+                <div id="loading-overlay"
+                    class="hidden flex flex-col items-center justify-center py-20 bg-white rounded-3xl shadow-sm border border-slate-200">
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-200 h-16 w-16 mb-4">
+                    </div>
+                    <p class="text-slate-600 font-medium">FastAPI is processing weather & color palettes...</p>
+                </div>
+
+                <div id="suggestion-content" class="space-y-6">
+                    <!-- Main Suggestion Card -->
+                    <div
+                        class="bg-indigo-600 rounded-3xl p-8 text-white shadow-xl shadow-indigo-100 relative overflow-hidden">
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-4 mb-6">
+                                <div id="weather-badge"
+                                    class="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full flex items-center gap-2">
+                                    <i id="main-weather-icon" class="fas fa-cloud-sun"></i>
+                                    <span id="main-temp" class="font-bold">24°C</span>
+                                </div>
+                                <span id="gender-display"
+                                    class="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest">MEN'S
+                                    FASHION</span>
+                            </div>
+
+                            <h2 id="look-name" class="text-4xl font-black mb-4">The Urban Explorer</h2>
+                            <p id="look-desc" class="text-indigo-100 text-lg max-w-xl leading-relaxed">
+                                Given your warm skin tone and the mild breeze in Mumbai today, we recommend earth-toned
+                                layers. A light olive overshirt paired with tan chinos creates a sophisticated yet
+                                functional silhouette.
+                            </p>
+                        </div>
+                        <!-- Background decoration -->
+                        <i class="fas fa-shirt absolute -bottom-10 -right-10 text-[200px] text-white/5 rotate-12"></i>
+                    </div>
+
+                    <!-- Shop Section -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Amazon -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+                            <div class="flex justify-between items-start mb-6">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg"
+                                    class="h-8" alt="Amazon">
+                                <span
+                                    class="text-[10px] font-black bg-orange-100 text-orange-600 px-2 py-1 rounded">PRIME
+                                    ELIGIBLE</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 mb-1">Amazon Verified Collection</h4>
+                            <p class="text-sm text-slate-500 mb-6">Budget-friendly essentials that match your specific
+                                color palette.</p>
+                            <a id="amazon-link" href="#" target="_blank"
+                                class="mt-auto bg-slate-900 text-white text-center py-3 rounded-xl font-bold hover:bg-slate-800 transition flex items-center justify-center gap-2">
+                                View Selection <i class="fas fa-arrow-right text-xs"></i>
+                            </a>
+                        </div>
+
+                        <!-- Myntra -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+                            <div class="flex justify-between items-start mb-6">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/b/bc/Myntra_logo.png"
+                                    class="h-8 object-contain" alt="Myntra">
+                                <span
+                                    class="text-[10px] font-black bg-pink-100 text-pink-600 px-2 py-1 rounded">TRENDING
+                                    NOW</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 mb-1">Myntra Style Studio</h4>
+                            <p class="text-sm text-slate-500 mb-6">Premium brands and latest drops filtered for your
+                                current location's climate.</p>
+                            <a id="myntra-link" href="#" target="_blank"
+                                class="mt-auto bg-pink-600 text-white text-center py-3 rounded-xl font-bold hover:bg-pink-500 transition flex items-center justify-center gap-2">
+                                Shop the Look <i class="fas fa-arrow-right text-xs"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // --- State Management ---
+        let currentGender = 'men';
+        let skinTone = null;
+        let coords = null;
+        let map, currentMarker;
+
+        // --- Initialize Map ---
+        window.onload = () => {
+            map = L.map('map', { zoomControl: false }).setView([19.0760, 72.8777], 10);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+
+            map.on('click', (e) => {
+                coords = e.latlng;
+                if (currentMarker) map.removeLayer(currentMarker);
+                currentMarker = L.marker(coords).addTo(map);
+                generateSuggestion();
+            });
+        };
+
+        // --- Gender Handling ---
+        function setGender(g) {
+            currentGender = g;
+            document.querySelectorAll('.gender-btn').forEach(btn => {
+                btn.className = "gender-btn py-2 px-3 border rounded-lg text-sm font-medium transition hover:bg-slate-50 border-slate-200 text-slate-600";
+            });
+            const activeBtn = document.getElementById(`btn-${g}`);
+            activeBtn.className = "gender-btn py-2 px-3 border rounded-lg text-sm font-medium transition bg-indigo-600 text-white border-indigo-600";
+            if (coords) generateSuggestion();
+        }
+
+        // --- Image Analysis (Real Integration) ---
+        document.getElementById('imageInput').addEventListener('change', async function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Show Preview
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const img = document.getElementById('imagePreview');
+                img.src = event.target.result;
+                img.classList.remove('hidden');
+                document.getElementById('upload-prompt').classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+
+            // Call Backend
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Show Analysis State
+            const results = document.getElementById('analysis-result');
+            const toneName = document.getElementById('tone-name');
+            const swatch = document.getElementById('swatch');
+
+            results.classList.remove('hidden');
+            toneName.innerText = "Analyzing with AI...";
+            swatch.style.backgroundColor = '#ccc';
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.error) {
+                    toneName.innerText = "Error analyzing";
+                    console.error(data.error);
+                } else {
+                    // Map returned skin tone to visual color
+                    const tone = data.skin_tone;
+                    let displayColor = '#d2a679'; // medium default
+                    let displayName = 'Medium / Warm';
+
+                    if (tone === 'light') {
+                        displayColor = '#f5d1c3';
+                        displayName = 'Fair / Cool';
+                    } else if (tone === 'dark') {
+                        displayColor = '#5d3d2e';
+                        displayName = 'Deep / Rich';
+                    } else {
+                        displayColor = '#d2a679';
+                        displayName = 'Medium / Warm';
+                    }
+
+                    skinTone = { name: displayName, color: displayColor, palette: 'Custom AI Palette' }; // Store for logic
+                    swatch.style.backgroundColor = displayColor;
+                    toneName.innerText = displayName;
+
+                    if (coords) generateSuggestion();
+                }
+            } catch (err) {
+                console.error("Analysis Failed", err);
+                toneName.innerText = "Connection Failed";
+            }
+        });
+
+        // function simulateSkinToneAnalysis() { ... } // Removed simulation
+
+        // --- Main Logic ---
+        async function generateSuggestion() {
+            const placeholder = document.getElementById('placeholder-view');
+            const resultView = document.getElementById('result-view');
+            const loading = document.getElementById('loading-overlay');
+            const content = document.getElementById('suggestion-content');
+
+            placeholder.classList.add('hidden');
+            resultView.classList.remove('hidden');
+            content.classList.add('hidden');
+            loading.classList.remove('hidden');
+
+            // Simulate Network Delay to FastAPI
+            await new Promise(r => setTimeout(r, 1200));
+
+            const temp = Math.floor(Math.random() * (35 - 12 + 1)) + 12;
+            const genderLabel = currentGender.toUpperCase();
+
+            // Logic mapping based on all 3 inputs
+            let look = { name: "", desc: "", amazon: "", myntra: "", icon: "fa-sun" };
+
+            if (temp > 28) {
+                look.name = currentGender === 'women' ? "The Solar Muse" : "Tropical High-Street";
+                look.icon = "fa-sun";
+                look.desc = `With temperatures hitting ${temp}°C and your ${skinTone ? skinTone.name : 'unique'} skin tone, we suggest breathable linen in ${skinTone ? skinTone.palette : 'light neutrals'}.`;
+                look.amazon = `https://www.amazon.in/s?k=${currentGender}+linen+outfit`;
+                look.myntra = `https://www.myntra.com/${currentGender}-linen-wear`;
+            } else if (temp < 18) {
+                look.name = "Neo-Classic Layers";
+                look.icon = "fa-snowflake";
+                look.desc = `It's a crisp ${temp}°C. We recommend layering with a structured wool coat. The ${skinTone ? skinTone.palette : 'darker shades'} will beautifully complement your complexion in this lighting.`;
+                look.amazon = `https://www.amazon.in/s?k=${currentGender}+winter+fashion`;
+                look.myntra = `https://www.myntra.com/${currentGender}-winter-outfits`;
+            } else {
+                look.name = "City Minimalist";
+                look.icon = "fa-cloud-sun";
+                look.desc = `Mild ${temp}°C weather is perfect for a hybrid look. Combine a tailored jacket with smart trousers. We've filtered items that match the ${skinTone ? skinTone.palette : 'versatile neutrals'} palette.`;
+                look.amazon = `https://www.amazon.in/s?k=${currentGender}+smart+casual`;
+                look.myntra = `https://www.myntra.com/${currentGender}-smart-casual`;
+            }
+
+            // Update UI
+            document.getElementById('main-temp').innerText = `${temp}°C`;
+            document.getElementById('look-name').innerText = look.name;
+            document.getElementById('look-desc').innerText = look.desc;
+            document.getElementById('gender-display').innerText = `${genderLabel}'S FASHION`;
+            document.getElementById('main-weather-icon').className = `fas ${look.icon}`;
+            document.getElementById('amazon-link').href = look.amazon;
+            document.getElementById('myntra-link').href = look.myntra;
+
+            loading.classList.add('hidden');
+            content.classList.remove('hidden');
+        }
+    </script>
+</body>
+
+</html>

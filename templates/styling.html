@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>StyleAI</title>
+
+    <!-- FONTS -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to bottom, #FFFFFF, #F8D7E0, #FADADD);
+
+
+
+            min-height: 100vh;
+            color: #111;
+        }
+
+        header {
+            padding: 28px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-weight: 600;
+            letter-spacing: 4px;
+        }
+
+        header nav a {
+            margin-right: 24px;
+            text-decoration: none;
+            color: #111;
+            font-weight: 500;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .title h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.6rem;
+            letter-spacing: 2px;
+        }
+
+        .title span {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 22px;
+            padding: 40px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
+            margin-bottom: 40px;
+        }
+
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .btn {
+            display: block;
+            margin: 0 auto;
+            background: white;
+            border: none;
+            padding: 16px 42px;
+            font-size: 14px;
+            letter-spacing: 1px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: #111;
+            color: white;
+        }
+
+        /* RESULTS GRID */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        h3 {
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 16px;
+        }
+
+        /* IMAGE RECOMMENDATIONS */
+        .looks {
+            display: flex;
+            gap: 16px;
+        }
+
+        .look-card {
+            width: 120px;
+            text-align: center;
+        }
+
+        .look-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .look-card p {
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        /* COLOR PALETTE */
+        .palette {
+            display: flex;
+            gap: 10px;
+        }
+
+        .color {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        .c1 {
+            background: #f1e0d3;
+        }
+
+        .c2 {
+            background: #e3a6a1;
+        }
+
+        .c3 {
+            background: #a97155;
+        }
+
+        .c4 {
+            background: #5b4a42;
+        }
+
+        .c5 {
+            background: #6e2432;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            header nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <nav>
+            <a href="#">Style AI</a>
+            <a href="#">StyleMap Pro</a>
+            <a href="#">Social Stylist</a>
+        </nav>
+
+        <div class="brand">BARE</div>
+        <div><a href="/" class="back-link">Back to Hub</a></div>
+    </header>
+
+    <div class="container">
+
+        <div class="title">
+            <h1>StyleAI</h1>
+            <span>Get Personalized Fashion Recommendations Using AI</span>
+        </div>
+
+        <div class="card">
+            <div class="upload-area" id="dropArea"
+                style="cursor: pointer; border: 2px dashed #bbb; padding: 40px; text-align: center; border-radius: 16px; transition: 0.3s;">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #888; margin-bottom: 20px;"></i>
+                <p style="margin-bottom: 20px; font-size: 1.1rem; color: #555;">Drag & Drop Image Here</p>
+
+                <!-- Visible Button -->
+                <button onclick="document.getElementById('fileInput').click()"
+                    style="background: #e3a6a1; color: white; border: none; padding: 10px 24px; border-radius: 30px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                    Choose File
+                </button>
+
+                <!-- Hidden Input -->
+                <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="previewImage(this)">
+
+                <!-- Preview -->
+                <div id="previewContainer" style="margin-top: 20px; display: none;">
+                    <img id="preview" src="" alt="Image Preview"
+                        style="max-height: 250px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                    <p id="fileName" style="margin-top: 10px; font-size: 0.9rem; color: #666;"></p>
+                </div>
+            </div>
+
+            <button class="btn" style="margin-top: 20px; width: 100%; font-size: 1.1rem; padding: 18px;"
+                onclick="uploadImage()">
+                Analyze My Style
+            </button>
+        </div>
+
+        <!-- Hidden Results Area (Initially) -->
+        <div class="card hidden" id="result">
+            <div class="grid">
+
+                <div>
+                    <h3>Detected Skin Tone</h3>
+                    <p id="skinTone" style="font-size: 1.2rem; font-weight: bold; color: #d97706;">Analyzing...</p>
+                </div>
+
+                <div>
+                    <h3>AI Styling Recommendations</h3>
+                    <div id="recommendation" style="font-size: 0.9rem; line-height: 1.6; color: #444;"></div>
+                </div>
+
+                <div id="palette-container">
+                    <h3>Color Palette</h3>
+                    <div class="palette" id="palette">
+                        <!-- Swatches injected by JS -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CSS Update for Dynamic Elements -->
+    <!-- CSS Update for Dynamic Elements -->
+    <style>
+        .hidden {
+            display: none;
+        }
+
+        /* Updated Palette CSS */
+        .color-palette-container {
+            width: 100%;
+        }
+
+        .palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: flex-start;
+        }
+
+        .palette-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80px;
+            text-align: center;
+        }
+
+        .swatch {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: inline-block;
+            border: 2px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .palette-label {
+            display: block;
+            margin-top: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #555;
+            line-height: 1.2;
+        }
+
+        /* Back Link */
+        .back-link {
+            text-decoration: none;
+            color: #111;
+            font-weight: 600;
+            padding: 8px 16px;
+            border: 1px solid #111;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: #111;
+            color: #fff;
+        }
+    </style>
+
+    <!-- Scripts -->
+    <script src="/static/script.js"></script>
+    <script>
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('preview').src = e.target.result;
+                    document.getElementById('previewContainer').style.display = 'block';
+                    document.getElementById('fileName').textContent = input.files[0].name;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+
+</body>
+
+</html>
